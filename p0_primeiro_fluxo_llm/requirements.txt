@@ -1,0 +1,5 @@
+# Dependencias do Projeto P0 com versoes travadas
+requests==2.31.0
+python-dotenv==1.0.1
+pytest==8.1.1
+

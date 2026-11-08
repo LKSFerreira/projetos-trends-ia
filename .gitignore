@@ -1,0 +1,33 @@
+# Ambientes virtuais
+.venv/
+env/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Variaveis de ambiente e credenciais (NUNCA commitar)
+.env
+.env.local
+.dev.env
+
+# Logs
+logs/
+*.log
+
+# Testes e cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs e Sistema Operacional
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
