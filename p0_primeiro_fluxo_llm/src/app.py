@@ -6,7 +6,7 @@ from src.client import envia_prompt_llm
 def main() -> None:
     """Ponto de entrada da CLI."""
     print("=" * 50)
-    print("🤖 P0 — Primeiro Fluxo com LLM")
+    print("🤖 P0: Primeiro Fluxo com LLM")
     print("=" * 50)
 
     prompt = input("\nDigite o prompt a ser enviado para a LLM:\n> ").strip()

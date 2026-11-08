@@ -1,4 +1,4 @@
-# P0 — Primeiro Fluxo com Modelo de Linguagem (LLM)
+# P0: Primeiro Fluxo com Modelo de Linguagem (LLM)
 
 Aplicação modular em Python que integra um modelo de linguagem de grande escala por meio de uma interface de programação (API REST), resolvendo uma tarefa textual com resiliência a falhas, proteção rigorosa de credenciais e validação offline via testes unitários.
 

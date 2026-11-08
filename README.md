@@ -1,4 +1,4 @@
-# Projetos — Capacitação TrendsIA (Sistemas Agentes)
+# Projetos: Capacitação TrendsIA (Sistemas Agentes)
 
 Repositório público que centraliza o desenvolvimento dos desafios práticos da formação **TrendsIA** (promovida pelo Núcleo Softex Campinas em parceria com a Hardware Br).
 
@@ -14,9 +14,9 @@ Cada desafio é mantido de forma modular e independente em seu próprio diretór
 
 | Diretório | Desafio | Descrição | Status |
 | :--- | :--- | :--- | :---: |
-| [`p0_primeiro_fluxo_llm/`](./p0_primeiro_fluxo_llm/) | **P0 — Primeiro fluxo com LLM** | Aplicação Python integrando LLM via API REST com tratamento de erros e testes unitários offline | Em desenvolvimento |
-| [`p1_analise_viabilidade/`](./p1_analise_viabilidade/) | **P1 — Análise de viabilidade** | Estudo técnico comparando LLM, heurísticas determinísticas e processos humanos | Planejado |
-| [`p2_recuperacao_contexto/`](./p2_recuperacao_contexto/) | **P2 — Recuperação de contexto** | Pipeline de Geração Aumentada por Recuperação (RAG) | Planejado |
+| [`p0_primeiro_fluxo_llm/`](./p0_primeiro_fluxo_llm/) | **P0: Primeiro fluxo com LLM** | Aplicação Python integrando LLM via API REST com tratamento de erros e testes unitários offline | Em desenvolvimento |
+| [`p1_analise_viabilidade/`](./p1_analise_viabilidade/) | **P1: Análise de viabilidade** | Estudo técnico comparando LLM, heurísticas determinísticas e processos humanos | Planejado |
+| [`p2_recuperacao_contexto/`](./p2_recuperacao_contexto/) | **P2: Recuperação de contexto** | Pipeline de Geração Aumentada por Recuperação (RAG) | Planejado |
 
 ---
 
