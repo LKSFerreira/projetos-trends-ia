@@ -1,6 +1,24 @@
 # P0: Primeiro Fluxo com Modelo de Linguagem (LLM)
 
-Aplicação modular em Python que integra um modelo de linguagem de grande escala por meio de uma interface de programação (API REST), resolvendo uma tarefa textual com resiliência a falhas, proteção rigorosa de credenciais e validação offline via testes unitários.
+Aplicação modular em Python que integra um modelo de linguagem de grande escala (LLM) por meio de uma interface de programação (API REST), resolvendo uma tarefa textual com resiliência a falhas, proteção rigorosa de credenciais e validação offline via testes unitários.
+
+## Problema e exemplo
+
+Uma pessoa que utiliza o escopo administrativo do LK SiGER precisa identificar quais opções do menu atendem às suas necessidades a partir de uma dúvida escrita, pois o sistema reúne diversas funções de gerenciamento.
+
+O LK SiGER é um sistema de gerenciamento de recursos em desenvolvimento. Seu contexto administrativo atende pessoas nos papéis de atendente, gerente e administrador da empresa. A aplicação do P0 receberá uma dúvida textual e apresentará uma orientação sobre opções de menu relacionadas à necessidade informada.
+
+**Exemplo de entrada:**
+
+> Quero consultar os detalhes de um pedido que está aguardando atendimento.
+
+**Exemplo de saída esperada:**
+
+- Se você possui o número do protocolo, acesse o `Menu Principal`, toque em `[🔎 Buscar pedido]`, digite o protocolo e envie ao sistema. Essa opção permite acessar pedidos em aberto, em análise ou encerrados.
+
+- Se você não possui o protocolo, acesse o `Menu Principal` e toque em `[📋 Fila operacional]`. Pedidos em aberto ou em análise podem ser visualizados nessa fila. Digite o número que representa o pedido e envie ao sistema para acessar a tela `Detalhes do Pedido`.
+
+O exemplo descreve o resultado esperado para o projeto. Ele ainda não comprova uma resposta produzida pela aplicação.
 
 ---
 
