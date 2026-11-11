@@ -20,6 +20,14 @@ O LK SiGER é um sistema de gerenciamento de recursos em desenvolvimento. Seu co
 
 O exemplo descreve o resultado esperado para o projeto. Ele ainda não comprova uma resposta produzida pela aplicação.
 
+## Justificativa para usar um modelo de linguagem
+
+As pessoas podem descrever a mesma necessidade de maneiras diferentes. Por exemplo, uma pessoa que começou a usar o sistema há pouco tempo pode se referir ao protocolo como "código do pedido". Pessoas familiarizadas com o sistema também podem precisar de ajuda para encontrar funcionalidades que utilizam pouco.
+
+Uma alternativa seria buscar palavras previamente cadastradas. Essa abordagem exigiria manter uma lista de expressões possíveis e poderia deixar de reconhecer uma dúvida formulada com palavras ausentes da lista. O modelo de linguagem foi escolhido para explorar sua capacidade de relacionar diferentes formulações às opções de menu fornecidas à aplicação.
+
+O modelo pode interpretar uma dúvida incorretamente ou indicar uma opção inadequada. Suas respostas precisam ser avaliadas com exemplos, inclusive quando não houver uma opção apropriada entre as fornecidas. A justificativa apresenta uma expectativa para o projeto, não uma comprovação de desempenho superior à busca por palavras.
+
 ---
 
 ## Arquitetura do Projeto
