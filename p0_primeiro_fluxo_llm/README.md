@@ -8,6 +8,10 @@ Uma pessoa que utiliza o escopo administrativo do LK SiGER precisa identificar q
 
 O LK SiGER é um sistema de gerenciamento de recursos em desenvolvimento. Seu contexto administrativo atende pessoas nos papéis de atendente, gerente e administrador da empresa. A aplicação do P0 receberá uma dúvida textual e apresentará uma orientação sobre opções de menu relacionadas à necessidade informada.
 
+## Escopo do P0
+
+A aplicação será executada pelo terminal, enviará a dúvida e as descrições das opções de menu a um modelo de linguagem e apresentará uma orientação em texto. Ela será independente do LK SiGER: não acessará pedidos reais nem executará funções no sistema.
+
 **Exemplo de entrada:**
 
 > Quero consultar os detalhes de um pedido que está aguardando atendimento.
