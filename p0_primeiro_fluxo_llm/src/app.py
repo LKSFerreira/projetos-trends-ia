@@ -5,6 +5,7 @@ from src.client import envia_prompt_llm
 
 def main() -> None:
     """Ponto de entrada da CLI."""
+
     print("=" * 50)
     print("🤖 P0: Primeiro Fluxo com LLM")
     print("=" * 50)
@@ -12,10 +13,10 @@ def main() -> None:
     prompt = input("\nDigite o prompt a ser enviado para a LLM:\n> ").strip()
 
     if not prompt:
-        print("Aviso: O prompt nao pode ser vazio.")
+        print("Aviso: O prompt não pode ser vazio.")
         return
 
-    print("\nEnviando requisicao para a LLM, aguarde...")
+    print("\nEnviando requisição para a LLM, aguarde...")
     resposta = envia_prompt_llm(prompt)
 
     print("\n" + "-" * 50)
