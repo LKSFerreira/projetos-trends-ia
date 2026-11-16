@@ -15,6 +15,11 @@ __pycache__/
 .env.local
 .dev.env
 
+# Arquivos locais do túnel Devel
+p0_primeiro_fluxo_llm/infra/tunel_devel/ssh_keys/
+p0_primeiro_fluxo_llm/infra/tunel_devel/chave_laboratorio.pub
+p0_primeiro_fluxo_llm/infra/tunel_devel/*.tar
+
 # Logs
 logs/
 *.log
