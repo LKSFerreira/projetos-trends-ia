@@ -1,6 +1,6 @@
 # P0: Primeiro Fluxo com Modelo de Linguagem (LLM)
 
-Aplicação modular em Python que integra um modelo de linguagem de grande escala (LLM) por meio de uma interface de programação (API REST), resolvendo uma tarefa textual com resiliência a falhas, proteção rigorosa de credenciais e validação offline via testes unitários.
+Aplicação em Python que utiliza um modelo de linguagem por meio de uma API para orientar dúvidas sobre opções do menu administrativo do LK SiGER.
 
 ## Problema e exemplo
 
@@ -22,7 +22,7 @@ A aplicação será executada pelo terminal, enviará a dúvida e as descriçõe
 
 - Se você não possui o protocolo, acesse o `Menu Principal` e toque em `[📋 Fila operacional]`. Pedidos em aberto ou em análise podem ser visualizados nessa fila. Digite o número que representa o pedido e envie ao sistema para acessar a tela `Detalhes do Pedido`.
 
-O exemplo descreve o resultado esperado para o projeto. Ele ainda não comprova uma resposta produzida pela aplicação.
+Esse exemplo descreve a saída esperada. As respostas observadas nos testes estão registradas mais adiante.
 
 ## Justificativa para usar um modelo de linguagem
 
@@ -40,7 +40,8 @@ O modelo pode interpretar uma dúvida incorretamente ou indicar uma opção inad
 p0_primeiro_fluxo_llm/
 ├── src/
 │   ├── app.py           # Interface de entrada (CLI), interação e formatação de saída
-│   └── client.py        # Camada de comunicação HTTP/REST com a LLM (requests)
+│   ├── client.py        # Comunicação HTTP/REST com a LLM (requests)
+│   └── contexto_prompt.py # Contexto e opções fornecidas ao modelo
 ├── tests/
 │   └── test_client.py   # Testes unitários offline com mocks (pytest)
 ├── .env.example         # Template público com nomes de variáveis de ambiente
@@ -83,6 +84,12 @@ cp .env.example .env
 # Edite o arquivo .env preenchendo as configurações da API
 ```
 
+O exemplo está configurado para o modelo institucional Devel usando um encaminhamento SSH ativo para a porta local `19001`. O encaminhamento passa por um contêiner no ambiente Devel e por um túnel Cloudflare. A aplicação não inicia esse encaminhamento por conta própria. O Dockerfile e o script de descoberta estão em `infra/tunel_devel/`. Eles foram copiados do laboratório onde o fluxo foi testado; sua execução a partir deste diretório e as instruções completas de preparação ainda precisam ser validadas.
+
+`LLM_API_URL` indica a URL local encaminhada; `LLM_API_HOST` identifica o serviço interno; `LLM_MODEL` escolhe o modelo; `LLM_TIMEOUT_SECONDS` define o tempo limite. `LLM_THINK` controla o parâmetro `think` do modelo e `LLM_VERIFICAR_TLS` controla a verificação do certificado. A chave `LLM_API_KEY` pode ficar vazia no acesso institucional testado.
+
+No laboratório, o certificado apresentado não correspondeu ao nome do serviço. Por isso, o exemplo define `LLM_VERIFICAR_TLS=false` para reproduzir o teste: nessa configuração, a identidade do serviço não é verificada pelo certificado. A solução definitiva para essa validação está pendente. Caso a variável não seja definida, o código mantém a verificação ativada.
+
 ### 5. Executar a aplicação (CLI)
 ```bash
 python -m src.app
@@ -93,13 +100,24 @@ python -m src.app
 pytest
 ```
 
+## Testes reais realizados
+
+Os exemplos abaixo foram executados no terminal com o modelo `qwen3.5:9b-q4_K_M`, por meio do encaminhamento SSH e com verificação TLS desativada. Os resultados são observações pontuais: novas respostas podem variar.
+
+| Entrada | Resultado observado |
+| --- | --- |
+| Preciso encontrar um pedido aguardando atendimento e consultar seus detalhes. | A resposta apresentou Buscar pedido pelo protocolo e Fila operacional para pedidos em aberto ou em análise. |
+| Como faço para cancelar um pedido? | A resposta informou que não encontrou uma opção adequada nas informações fornecidas e não inventou um caminho de cancelamento. |
+
+A aplicação não consulta pedidos nem executa operações no LK SiGER. A reprodução em ambiente limpo ainda não foi validada.
+
 ---
 
 ## Marcos de Entrega (Tags Git)
 
 A evolução do projeto segue os três checkpoints obrigatórios:
 
-* `P0-basico`: Estrutura mínima funcional (chamada básica ao LLM funcionando).
-* `P0-intermediario`: Tratamento de exceções (HTTP 401 e Timeout) com mensagens amigáveis no terminal.
-* `P0-avancado`: Cobertura completa de testes unitários offline com `pytest` e `monkeypatch`.
+* `p0-basico`: Primeiro fluxo funcional com entrada textual e resposta do LLM.
+* `p0-intermediario`: Organização do fluxo e tratamento de erros.
+* `p0-avancado`: Configuração, testes e entrega reproduzível.
 
