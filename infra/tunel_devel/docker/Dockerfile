@@ -1,15 +1,15 @@
 FROM alpine:3.24 AS base_ssh
 
 RUN apk add --no-cache openssh-server \
-    && adduser -D -s /bin/sh laboratorio \
-    && passwd -d laboratorio \
-    && mkdir -p /home/laboratorio/.ssh \
-    && chmod 700 /home/laboratorio/.ssh
+    && adduser -D -s /bin/sh tunel_devel \
+    && passwd -d tunel_devel \
+    && mkdir -p /home/tunel_devel/.ssh \
+    && chmod 700 /home/tunel_devel/.ssh
 
-COPY chave_laboratorio.pub /home/laboratorio/.ssh/authorized_keys
+COPY chave_tunel_devel.pub /home/tunel_devel/.ssh/authorized_keys
 
-RUN chown -R laboratorio:laboratorio /home/laboratorio/.ssh \
-    && chmod 600 /home/laboratorio/.ssh/authorized_keys
+RUN chown -R tunel_devel:tunel_devel /home/tunel_devel/.ssh \
+    && chmod 600 /home/tunel_devel/.ssh/authorized_keys
 
 FROM cloudflare/cloudflared:latest
 

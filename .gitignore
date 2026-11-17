@@ -16,9 +16,10 @@ __pycache__/
 .dev.env
 
 # Arquivos locais do túnel Devel
-p0_primeiro_fluxo_llm/infra/tunel_devel/ssh_keys/
-p0_primeiro_fluxo_llm/infra/tunel_devel/chave_laboratorio.pub
-p0_primeiro_fluxo_llm/infra/tunel_devel/*.tar
+infra/tunel_devel/ssh_keys/
+infra/tunel_devel/chave_tunel_devel.pub
+infra/tunel_devel/docker/chave_tunel_devel.pub
+infra/tunel_devel/*.tar
 
 # Logs
 logs/
