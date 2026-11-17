@@ -84,7 +84,7 @@ cp .env.example .env
 # Edite o arquivo .env preenchendo as configurações da API
 ```
 
-O exemplo está configurado para o modelo institucional Devel usando um encaminhamento SSH ativo para a porta local `19001`. O encaminhamento passa por um contêiner no ambiente Devel e por um túnel Cloudflare. A aplicação não inicia esse encaminhamento por conta própria. O Dockerfile e o script de descoberta estão em `infra/tunel_devel/`. Eles foram copiados do laboratório onde o fluxo foi testado; sua execução a partir deste diretório e as instruções completas de preparação ainda precisam ser validadas.
+O exemplo está configurado para o modelo institucional Devel usando um encaminhamento SSH ativo para a porta local `19001`. O encaminhamento passa por um contêiner no ambiente Devel e por um túnel Cloudflare. A aplicação não inicia esse encaminhamento por conta própria. O Dockerfile e o script de descoberta estão em `infra/tunel_devel/`, na raiz do repositório.
 
 `LLM_API_URL` indica a URL local encaminhada; `LLM_API_HOST` identifica o serviço interno; `LLM_MODEL` escolhe o modelo; `LLM_TIMEOUT_SECONDS` define o tempo limite. `LLM_THINK` controla o parâmetro `think` do modelo e `LLM_VERIFICAR_TLS` controla a verificação do certificado. A chave `LLM_API_KEY` pode ficar vazia no acesso institucional testado.
 
