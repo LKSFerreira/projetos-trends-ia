@@ -103,12 +103,15 @@ source .venv/bin/activate
 **No Windows (PowerShell):**
 ```powershell
 python -m venv .venv
-.venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 ```
 
 ### 3. Instalar dependências
+
+No mesmo terminal, com a `.venv` ativa, instale as dependências com o Python desse ambiente.
+
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ### 4. Configurar variáveis de ambiente
@@ -143,17 +146,22 @@ Informe seu e-mail e sua senha do portal. Se o SSH pedir a frase de segurança d
 
 ### 6. Executar a aplicação (CLI)
 
-Em um segundo terminal, entre em `p0_primeiro_fluxo_llm`, ative o ambiente virtual como no passo 2 e execute o comando abaixo.
+Em um segundo terminal, entre em `p0_primeiro_fluxo_llm` e ative a `.venv` criado usando o comando do [passo 2](#2-criar-e-ativar-o-ambiente-virtual). Depois, execute a aplicação no mesmo terminal.
 
 ```bash
 python -m src.app
 ```
 
+Se aparecer `No module named 'dotenv'`, confira se você ativou a `.venv` nesse mesmo terminal e instalou as dependências conforme o passo 3. O pacote `python-dotenv` é instalado na `.venv` e importado como `dotenv`.
+
 Antes de pedir a dúvida, o P0 verifica a porta local `19001` para reutilizar o encaminhamento. Se a porta estiver fechada, o P0 tenta abrir o túnel no próprio terminal e encerra essa conexão ao sair.
 
 ### 7. Executar os testes unitários (100% offline)
+
+Na pasta `p0_primeiro_fluxo_llm`, com a `.venv` ativa, execute o pytest como módulo do Python. Assim, a pasta atual fica disponível para os testes importarem `src`.
+
 ```bash
-pytest
+python -m pytest
 ```
 
 ### 8. Tudo mastigado
@@ -164,7 +172,37 @@ Se preferir iniciar o P0 em um único terminal, use o script incluído no reposi
 python exec_app.py
 ```
 
+## Erros conhecidos
+
+### Permissão da chave SSH no Windows
+
+Se o OpenSSH mostrar `UNPROTECTED PRIVATE KEY FILE` ou `bad permissions` ao carregar a chave, confira as permissões do arquivo. Ao copiar a chave para outro diretório, o Windows pode dar ao arquivo permissões herdadas da pasta, incluindo acesso de leitura para outros usuários ou grupos. O OpenSSH recusa usar a chave nesse caso. [Permissões de chaves no OpenSSH para Windows](https://github.com/PowerShell/Win32-OpenSSH/wiki/Security-protection-of-various-files-in-win32-openssh#user-private-key-files)
+
+No PowerShell, dentro da pasta `p0_primeiro_fluxo_llm`, execute o bloco abaixo com a conta proprietária da chave. Ele ajusta apenas o arquivo privado `chave_tunel_devel`, sem a extensão `.pub`.
+
+```powershell
+$chave = '..\infra\tunel_devel\ssh_keys\chave_tunel_devel'
+$conta = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+icacls.exe $chave /grant:r "${conta}:(F)"
+if ($LASTEXITCODE -ne 0) { throw 'Não foi possível conceder acesso à sua conta.' }
+icacls.exe $chave /inheritance:r
+```
+
+O `icacls.exe` ajusta as permissões do arquivo. `/grant:r` garante primeiro uma permissão explícita de controle total `(F)` para sua conta. `/inheritance:r` desativa a herança e remove as permissões herdadas. [Referência do icacls](https://learn.microsoft.com/pt-br/windows-server/administration/windows-commands/icacls)
+
+Depois, execute `python exec_app.py` novamente. Se o SSH pedir a frase de segurança, use a mesma da chave que você copiou.
+
+### Erro HTTP 502 ao consultar o modelo
+
+Um `502 Bad Gateway` pode indicar que o serviço do modelo no Devel está temporariamente indisponível ou que o intermediário não conseguiu obter uma resposta dele. No teste em clone limpo, duas tentativas retornaram 502 e uma tentativa posterior funcionou após o reinício do contêiner. A causa exata não foi confirmada.
+
+1. No portal do Devel, pare o contêiner e aguarde alguns segundos.
+2. Inicie o contêiner novamente e aguarde mais alguns segundos para o túnel ficar disponível.
+3. Execute `python exec_app.py` e envie a pergunta novamente.
+
 ## Testes reais realizados
+
+No teste manual em um clone limpo no Windows, `python exec_app.py` abriu o túnel e o modelo respondeu à pergunta sobre o que fazer com um protocolo em mãos. A resposta orientou a usar **Buscar pedido** para digitar o protocolo e consultar os detalhes.
 
 Os exemplos abaixo foram executados no terminal com o modelo `qwen3.5:9b-q4_K_M`, por meio do encaminhamento SSH e com verificação TLS desativada. Os resultados são observações pontuais: novas respostas podem variar.
 
@@ -173,7 +211,7 @@ Os exemplos abaixo foram executados no terminal com o modelo `qwen3.5:9b-q4_K_M`
 | Preciso encontrar um pedido aguardando atendimento e consultar seus detalhes. | A resposta apresentou Buscar pedido pelo protocolo e Fila operacional para pedidos em aberto ou em análise. |
 | Como faço para cancelar um pedido? | A resposta informou que não encontrou uma opção adequada nas informações fornecidas e não inventou um caminho de cancelamento. |
 
-A aplicação não consulta pedidos nem executa operações no LK SiGER. A reprodução em ambiente limpo ainda não foi validada.
+A aplicação não consulta pedidos nem executa operações no LK SiGER.
 
 ---
 
