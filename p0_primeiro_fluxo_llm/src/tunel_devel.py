@@ -65,21 +65,23 @@ def preparar_tunel_devel() -> Iterator[None]:
         yield
         return
 
-    print("Abrindo o túnel do Devel. Siga as instruções de acesso no terminal.", flush=True)
+    print("\nAbrindo o túnel do Devel...", flush=True)
     try:
         processo = subprocess.Popen([sys.executable, str(SCRIPT_TUNEL)])
     except OSError as erro:
         raise RuntimeError("Não foi possível executar abrir_tunel_cloudflare.py.") from erro
 
     try:
-        while not porta_local_aberta():
+        while processo.poll() is None and not porta_local_aberta():
             try:
                 processo.wait(timeout=0.25)
             except subprocess.TimeoutExpired:
                 continue
-            raise RuntimeError("O túnel do Devel não abriu. Confira a mensagem acima.")
-        if processo.poll() is not None:
-            raise RuntimeError("O túnel do Devel encerrou durante a abertura.")
+        codigo_saida = processo.poll()
+        if codigo_saida:
+            raise SystemExit(codigo_saida)
+        if codigo_saida == 0:
+            raise RuntimeError("O túnel encerrou antes de disponibilizar a porta local 19001.")
         yield
     finally:
         encerrar_tunel(processo)

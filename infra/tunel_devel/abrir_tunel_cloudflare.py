@@ -49,8 +49,10 @@ def verificar_requisitos() -> list[str]:
         )
     if not CHAVE_SSH.is_file():
         problemas.append(
-            f"Chave privada não encontrada em {CHAVE_SSH}. Crie ou coloque a chave "
-            "nesse caminho, ou ajuste CHAVE_SSH neste script."
+            "Chave privada SSH não encontrada.\n"
+            "  Coloque o arquivo da chave privada, sem a extensão .pub, neste caminho:\n"
+            f"  {CHAVE_SSH}\n"
+            "  Se ainda não gerou a chave, siga a etapa de preparação indicada no README."
         )
     return problemas
 
@@ -167,9 +169,8 @@ def main() -> None:
     """Autentica no portal, descobre o túnel e inicia o SSH."""
     problemas = verificar_requisitos()
     if problemas:
-        print("Não foi possível iniciar o encaminhamento:", file=sys.stderr)
-        for problema in problemas:
-            print(f"- {problema}", file=sys.stderr)
+        print("\nNão foi possível abrir o túnel do Devel.\n", file=sys.stderr)
+        print("\n\n".join(f"- {problema}" for problema in problemas), file=sys.stderr)
         raise SystemExit(1)
 
     import requests
@@ -207,7 +208,7 @@ def main() -> None:
     try:
         iniciar_encaminhamento_ssh(endereco_tunel, host_llm)
     except subprocess.CalledProcessError as erro:
-        print(f"Erro: O SSH encerrou com código {erro.returncode}. Confira a mensagem acima, o túnel e a autenticação.", file=sys.stderr)
+        print(f"\nO SSH encerrou com código {erro.returncode}.", file=sys.stderr)
         raise SystemExit(1) from None
     except FileNotFoundError:
         print("Erro: Não foi possível iniciar o SSH. Verifique se ele está disponível no PATH.", file=sys.stderr)

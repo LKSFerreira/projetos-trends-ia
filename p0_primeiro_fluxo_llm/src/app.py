@@ -7,7 +7,7 @@ from src.tunel_devel import preparar_tunel_devel
 def main() -> None:
     """Ponto de entrada da CLI."""
 
-    print("=" * 100)
+    print("\n" + "=" * 100)
     print("🤖 P0: Primeiro Fluxo com LLM")
     print("=" * 100)
 

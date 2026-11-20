@@ -46,7 +46,7 @@ def preparar_dependencias() -> None:
         importlib.invalidate_caches()
     except (OSError, subprocess.CalledProcessError):
         raise SystemExit(
-            "Falha ao preparar o ambiente virtual do P0. Confira a mensagem acima."
+            "\nNão foi possível preparar o ambiente virtual do P0."
         ) from None
 
 
@@ -69,7 +69,7 @@ def main() -> None:
     primeira_configuracao = not host
     if primeira_configuracao:
         host = input(
-            "Nome do host informado pelo Devel, sem protocolo ou porta. "
+            "\nNome do host informado pelo Devel, sem protocolo ou porta.\n"
             "Exemplo: llm-teste.software\n> "
         ).strip()
 

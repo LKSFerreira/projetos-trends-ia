@@ -6,7 +6,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src import app
+from src import app, tunel_devel
 
 
 def test_pede_pergunta_apos_preparar_o_tunel(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -51,3 +51,18 @@ def test_falha_na_abertura_impede_a_pergunta(monkeypatch: pytest.MonkeyPatch) ->
 
     ler_pergunta.assert_not_called()
     enviar_pergunta.assert_not_called()
+
+
+def test_preserva_codigo_da_falha_do_script(monkeypatch: pytest.MonkeyPatch) -> None:
+    """O P0 encerra com o código do script, que já apresenta o diagnóstico."""
+    processo = Mock()
+    processo.poll.return_value = 1
+    monkeypatch.setenv("LLM_API_URL", "https://127.0.0.1:19001/api/generate")
+    monkeypatch.setattr(tunel_devel, "porta_local_aberta", lambda: False)
+    monkeypatch.setattr(tunel_devel.subprocess, "Popen", Mock(return_value=processo))
+
+    with pytest.raises(SystemExit) as saida:
+        with tunel_devel.preparar_tunel_devel():
+            pytest.fail("O encaminhamento falhou antes de ficar disponível.")
+
+    assert saida.value.code == 1
