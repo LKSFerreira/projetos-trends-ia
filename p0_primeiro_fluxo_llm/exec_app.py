@@ -68,7 +68,10 @@ def main() -> None:
     ).strip()
     primeira_configuracao = not host
     if primeira_configuracao:
-        host = input("Nome do host informado pelo Devel, sem protocolo ou porta: ").strip()
+        host = input(
+            "Nome do host informado pelo Devel, sem protocolo ou porta. "
+            "Exemplo: llm-teste.software\n> "
+        ).strip()
 
     if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9.-]*", host):
         raise SystemExit(
