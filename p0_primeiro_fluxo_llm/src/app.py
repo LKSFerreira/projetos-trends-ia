@@ -11,14 +11,13 @@ def main() -> None:
     print("🤖 P0: Primeiro Fluxo com LLM")
     print("=" * 100)
 
-    prompt = input("\nDigite o prompt a ser enviado para a LLM:\n> ").strip()
-
-    if not prompt:
-        print("Aviso: O prompt não pode ser vazio.")
-        return
-
     try:
         with preparar_tunel_devel():
+            prompt = input("\nDigite o prompt a ser enviado para a LLM:\n> ").strip()
+            if not prompt:
+                print("Aviso: O prompt não pode ser vazio.")
+                return
+
             print("\nEnviando requisição para a LLM, aguarde...")
             resposta = envia_prompt_llm(prompt)
     except RuntimeError as erro:

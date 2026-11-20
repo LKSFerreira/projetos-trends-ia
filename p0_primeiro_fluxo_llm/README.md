@@ -82,7 +82,7 @@ Se as dependências estiverem ausentes, o script prepara a pasta `.venv` e insta
 uv run --no-project --with-requirements requirements.txt python exec_app.py
 ```
 
-Nos dois caminhos, o script cria o `.env` se necessário e pede o host institucional se ele ainda não estiver configurado. Depois, o P0 abre ou reutiliza o túnel ao receber a primeira dúvida. Informe o login do Devel e a frase de segurança da chave se forem solicitados.
+Nos dois caminhos, o script cria o `.env` se necessário e pede o host institucional se ele ainda não estiver configurado. O P0 verifica a porta local e abre o túnel se precisar. Informe o login do Devel e a frase de segurança da chave se forem solicitados. Digite a pergunta quando o campo de entrada aparecer.
 
 ### Execução passo a passo
 
@@ -149,7 +149,7 @@ Em um segundo terminal, entre em `p0_primeiro_fluxo_llm`, ative o ambiente virtu
 python -m src.app
 ```
 
-Ao enviar uma dúvida, o P0 reutiliza o encaminhamento na porta local `19001`. Se a porta estiver fechada, o P0 tenta abrir o túnel no próprio terminal e encerra essa conexão ao sair.
+Antes de pedir a dúvida, o P0 verifica a porta local `19001` para reutilizar o encaminhamento. Se a porta estiver fechada, o P0 tenta abrir o túnel no próprio terminal e encerra essa conexão ao sair.
 
 ### 7. Executar os testes unitários (100% offline)
 ```bash
