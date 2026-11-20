@@ -1,6 +1,7 @@
-"""Interface de Linha de Comando (CLI) para interacao com a aplicacao P0."""
+"""Interface de linha de comando da aplicação P0."""
 
 from src.client import envia_prompt_llm
+from src.tunel_devel import preparar_tunel_devel
 
 
 def main() -> None:
@@ -16,8 +17,12 @@ def main() -> None:
         print("Aviso: O prompt não pode ser vazio.")
         return
 
-    print("\nEnviando requisição para a LLM, aguarde...")
-    resposta = envia_prompt_llm(prompt)
+    try:
+        with preparar_tunel_devel():
+            print("\nEnviando requisição para a LLM, aguarde...")
+            resposta = envia_prompt_llm(prompt)
+    except RuntimeError as erro:
+        raise SystemExit(str(erro)) from None
 
     print("\n" + "-" * 100)
     print("Resposta:")
@@ -26,5 +31,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nExecução interrompida pelo usuário.")
+        raise SystemExit(130) from None
 
