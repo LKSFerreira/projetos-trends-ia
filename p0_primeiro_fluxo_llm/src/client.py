@@ -34,14 +34,14 @@ def envia_prompt_llm(prompt: str) -> str:
     Returns:
         str: Texto da resposta processada ou mensagem de erro amigavel.
     """
-    api_host = os.getenv("LLM_API_HOST","").strip()
+    api_host = os.getenv("HOST_API_LLM_INTERNO","").strip()
     api_url = os.getenv("LLM_API_URL", "").strip()
     api_key = os.getenv("LLM_API_KEY", "").strip()
     model = os.getenv("LLM_MODEL", "qwen3.5:9b-q4_K_M").strip()
     timeout = int(os.getenv("LLM_TIMEOUT_SECONDS", "30"))
 
     if not api_host:
-        return "Erro de configuracao: A variável LLM_API_HOST não foi definida no .env"
+        return "Erro de configuracao: A variável HOST_API_LLM_INTERNO não foi definida no .env"
 
     if not api_url:
         return "Erro de configuracao: A variável LLM_API_URL não foi definida no .env"

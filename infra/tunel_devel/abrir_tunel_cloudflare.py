@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 from getpass import getpass
@@ -16,6 +18,7 @@ ENDERECO_PORTAL = "https://devel-llm.eastus.cloudapp.azure.com"
 ENDERECO_LOGIN = f"{ENDERECO_PORTAL}/login/"
 TEMPO_LIMITE = 15
 CHAVE_SSH = Path(__file__).resolve().parent / "ssh_keys" / "chave_tunel_devel"
+ARQUIVO_ENV = Path(__file__).resolve().parents[2] / "p0_primeiro_fluxo_llm" / ".env"
 
 
 class TunelNaoEncontrado(Exception):
@@ -28,7 +31,12 @@ def verificar_requisitos() -> list[str]:
     if importlib.util.find_spec("requests") is None:
         problemas.append(
             "Biblioteca requests não encontrada. Instale-a no ambiente Python "
-            "usado para executar o script. Consulte as instruções do artigo para uv ou Python."
+            "usado para executar o script. Consulte o README do P0."
+        )
+    if importlib.util.find_spec("dotenv") is None:
+        problemas.append(
+            "Biblioteca python-dotenv não encontrada. Instale as dependências "
+            "do P0 conforme o README."
         )
     if shutil.which("ssh") is None:
         problemas.append(
@@ -130,7 +138,7 @@ def descobrir_endereco_tunel(sessao: requests.Session, painel: str) -> str:
     return endereco_tunel
 
 
-def iniciar_encaminhamento_ssh(endereco_tunel: str) -> None:
+def iniciar_encaminhamento_ssh(endereco_tunel: str, host_llm: str) -> None:
     """Mantém o encaminhamento SSH ativo até o processo ser encerrado."""
     nome_tunel = urlparse(endereco_tunel).hostname
     comando_ssh = [
@@ -144,7 +152,7 @@ def iniciar_encaminhamento_ssh(endereco_tunel: str) -> None:
         "-o",
         "StrictHostKeyChecking=accept-new",
         "-L",
-        "127.0.0.1:19001:llm.example.invalid:9001",
+        f"127.0.0.1:19001:{host_llm}:9001",
         "-N",
         f"tunel_devel@{nome_tunel}",
     ]
@@ -165,6 +173,15 @@ def main() -> None:
         raise SystemExit(1)
 
     import requests
+    from dotenv import load_dotenv
+
+    load_dotenv(ARQUIVO_ENV)
+    host_llm = os.getenv("HOST_API_LLM_INTERNO", "")
+    if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9.-]*", host_llm):
+        raise SystemExit(
+            "Preencha HOST_API_LLM_INTERNO em p0_primeiro_fluxo_llm/.env com o nome "
+            "do host informado pelo Devel, sem protocolo ou porta."
+        )
 
     try:
         with requests.Session() as sessao:
@@ -188,7 +205,7 @@ def main() -> None:
         raise SystemExit(1) from None
 
     try:
-        iniciar_encaminhamento_ssh(endereco_tunel)
+        iniciar_encaminhamento_ssh(endereco_tunel, host_llm)
     except subprocess.CalledProcessError as erro:
         print(f"Erro: O SSH encerrou com código {erro.returncode}. Confira a mensagem acima, o túnel e a autenticação.", file=sys.stderr)
         raise SystemExit(1) from None
@@ -197,7 +214,13 @@ def main() -> None:
         raise SystemExit(1) from None
 
 
+def encerrar_por_sinal(numero_sinal: int, quadro: object) -> None:
+    """Interrompe a espera pelo SSH quando a aplicação encerra o script."""
+    raise SystemExit(128 + numero_sinal)
+
+
 if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, encerrar_por_sinal)
     try:
         main()
     except KeyboardInterrupt:

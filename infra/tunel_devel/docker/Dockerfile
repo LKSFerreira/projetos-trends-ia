@@ -23,4 +23,4 @@ COPY --from=base_ssh /home/ /home/
 USER root
 
 ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["mkdir -p /run/sshd /var/empty && chmod 755 /var/empty && ssh-keygen -A && /usr/sbin/sshd -p 2222 -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o PermitRootLogin=no -o AllowTcpForwarding=local -o PermitOpen=llm.example.invalid:9001 && exec cloudflared tunnel --url ssh://127.0.0.1:2222"]
+CMD ["case \"$HOST_API_LLM_INTERNO\" in ''|[!a-zA-Z0-9]*|*[!a-zA-Z0-9.-]*) echo 'Defina HOST_API_LLM_INTERNO com o nome do host informado pelo Devel, sem protocolo ou porta.' >&2; exit 1;; esac; mkdir -p /run/sshd /var/empty && chmod 755 /var/empty && ssh-keygen -A && /usr/sbin/sshd -p 2222 -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o PermitRootLogin=no -o AllowTcpForwarding=local -o \"PermitOpen=${HOST_API_LLM_INTERNO}:9001\" && exec cloudflared tunnel --url ssh://127.0.0.1:2222"]
