@@ -5,6 +5,18 @@ import requests
 from src.client import envia_prompt_llm
 
 
+@pytest.fixture(autouse=True)
+def configurar_llm_de_teste(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Isola os testes das variáveis de ambiente usadas pelo cliente."""
+    monkeypatch.setenv("LLM_API_URL", "https://llm-teste.invalid/api/generate")
+    monkeypatch.setenv("HOST_API_LLM_INTERNO", "llm-teste.invalid")
+    monkeypatch.setenv("LLM_MODEL", "modelo-teste")
+    monkeypatch.setenv("LLM_TIMEOUT_SECONDS", "30")
+    monkeypatch.setenv("LLM_VERIFICAR_TLS", "true")
+    monkeypatch.setenv("LLM_THINK", "false")
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
+
+
 class MockResponse:
     """Simula o objeto de resposta da biblioteca requests."""
 
@@ -22,7 +34,6 @@ class MockResponse:
 
 def test_envia_prompt_sucesso_ollama(monkeypatch: pytest.MonkeyPatch) -> None:
     """Valida o retorno bem-sucedido no formato de resposta do Ollama."""
-    monkeypatch.setenv("LLM_API_URL", "https://llm-teste.fake/api/generate")
     monkeypatch.setenv("LLM_API_KEY", "fake_key")
 
     def mock_post(*args, **kwargs) -> MockResponse:
@@ -36,8 +47,6 @@ def test_envia_prompt_sucesso_ollama(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_envia_prompt_erro_401(monkeypatch: pytest.MonkeyPatch) -> None:
     """Valida o tratamento amigavel para falha de autenticacao HTTP 401."""
-    monkeypatch.setenv("LLM_API_URL", "https://llm-teste.fake/api/generate")
-
     def mock_post(*args, **kwargs) -> MockResponse:
         return MockResponse({}, 401)
 
@@ -49,8 +58,6 @@ def test_envia_prompt_erro_401(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_envia_prompt_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
     """Valida a interceptacao amigavel de Timeout."""
-    monkeypatch.setenv("LLM_API_URL", "https://llm-teste.fake/api/generate")
-
     def mock_post(*args, **kwargs) -> MockResponse:
         raise requests.exceptions.Timeout("Tempo limite esgotado")
 
