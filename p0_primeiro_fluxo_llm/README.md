@@ -130,6 +130,15 @@ Depois de copiar o exemplo, preencha `HOST_API_LLM_INTERNO` no `.env` com o nome
 
 O acesso institucional testado dispensa chave de API.
 
+Para evitar digitar o login do portal sempre que abrir o túnel, preencha as variáveis opcionais abaixo no seu `.env` local. Use aspas na senha se ela tiver espaços ou `#`. O arquivo é ignorado pelo Git e armazena a senha em texto claro.
+
+```dotenv
+DEVEL_EMAIL=
+DEVEL_SENHA=
+```
+
+O script pede no terminal os campos que estiverem vazios. Se o portal devolver a página de login, você pode preencher esses campos de novo ou pressionar `Ctrl+C`. Se os dois campos já estiverem configurados, o script orienta a revisar o `.env`. Quando o portal responder com um código de erro HTTP, o script exibe esse código e encerra. O SSH continua pedindo a frase de segurança da chave quando necessário.
+
 ### 5. Abrir o túnel antes de executar a aplicação
 
 Prepare a chave SSH e inicie o contêiner no Devel conforme o [artigo sobre o acesso ao LLM institucional](https://ead.hardware.org.br/mod/forum/discuss.php?d=1323). Os comandos `ssh` e `cloudflared` precisam estar disponíveis no computador local.
@@ -142,7 +151,7 @@ No primeiro terminal, dentro de `p0_primeiro_fluxo_llm` e com o ambiente virtual
 python ../infra/tunel_devel/abrir_tunel_cloudflare.py
 ```
 
-Informe seu e-mail e sua senha do portal. Se o SSH pedir a frase de segurança da chave, informe-a também. Mantenha esse terminal aberto enquanto usa a aplicação. Ao terminar, pressione `Ctrl+C` nesse terminal para fechar o túnel.
+Informe as credenciais do portal que não estiverem configuradas no `.env`. Se o SSH pedir a frase de segurança da chave, informe-a também. Mantenha esse terminal aberto enquanto usa a aplicação. Ao terminar, pressione `Ctrl+C` nesse terminal para fechar o túnel.
 
 ### 6. Executar a aplicação (CLI)
 

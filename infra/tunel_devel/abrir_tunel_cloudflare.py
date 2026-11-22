@@ -77,38 +77,42 @@ class LeitorTokenLogin(HTMLParser):
 
 def autenticar_no_portal(sessao: requests.Session) -> str:
     """Autentica a sessão e devolve o HTML do painel."""
-    resposta = sessao.get(ENDERECO_LOGIN, timeout=TEMPO_LIMITE)
-    resposta.raise_for_status()
-
-    leitor = LeitorTokenLogin()
-    leitor.feed(resposta.text)
-    if not leitor.token:
-        raise RuntimeError("O token de proteção não foi encontrado no formulário.")
-
     print("\n" + "=" * 100)
     print("  ACESSO AO DEVEL LLM PORTAL")
-    print("=" * 100)
-    print("\nPágina de login recebida e token de proteção identificado.\n")
-    email = input("E-mail do portal: ").strip()
-    senha = getpass("Senha do portal: ")
+    print("=" * 100 + "\n")
+    email_configurado = os.getenv("DEVEL_EMAIL", "").strip()
+    senha_configurada = os.getenv("DEVEL_SENHA", "")
 
-    resposta = sessao.post(
-        ENDERECO_LOGIN,
-        data={
-            "csrfmiddlewaretoken": leitor.token,
-            "username": email,
-            "password": senha,
-            "next": "/",
-        },
-        headers={"Referer": ENDERECO_LOGIN},
-        timeout=TEMPO_LIMITE,
-    )
-    resposta.raise_for_status()
-    if "/logout/" not in resposta.text:
-        raise RuntimeError("O login não foi confirmado. Confira os dados e tente novamente.")
+    while True:
+        resposta = sessao.get(ENDERECO_LOGIN, timeout=TEMPO_LIMITE)
+        resposta.raise_for_status()
 
-    print("\nLogin confirmado pelo painel do portal.")
-    return resposta.text
+        leitor = LeitorTokenLogin()
+        leitor.feed(resposta.text)
+        if not leitor.token:
+            raise RuntimeError("O token de proteção não foi encontrado no formulário.")
+
+        email = email_configurado or input("E-mail do portal: ").strip()
+        senha = senha_configurada or getpass("Senha do portal: ")
+        resposta = sessao.post(
+            ENDERECO_LOGIN,
+            data={
+                "csrfmiddlewaretoken": leitor.token,
+                "username": email,
+                "password": senha,
+                "next": "/",
+            },
+            headers={"Referer": ENDERECO_LOGIN},
+            timeout=TEMPO_LIMITE,
+        )
+        resposta.raise_for_status()
+        if "/logout/" in resposta.text:
+            print("\nLogin confirmado pelo painel do portal.")
+            return resposta.text
+        if email_configurado and senha_configurada:
+            raise RuntimeError("Login recusado. Revise DEVEL_EMAIL e DEVEL_SENHA no .env.")
+
+        print("\nLogin não confirmado. Digite os dados novamente ou pressione Ctrl+C.\n")
 
 
 def descobrir_endereco_tunel(sessao: requests.Session, painel: str) -> str:
@@ -176,7 +180,7 @@ def main() -> None:
     import requests
     from dotenv import load_dotenv
 
-    load_dotenv(ARQUIVO_ENV)
+    load_dotenv(ARQUIVO_ENV, interpolate=False)
     host_llm = os.getenv("HOST_API_LLM_INTERNO", "")
     if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9.-]*", host_llm):
         raise SystemExit(

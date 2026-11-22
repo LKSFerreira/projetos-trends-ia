@@ -10,7 +10,7 @@ from src.contexto_prompt import CONTEXTO_LK_SIGER
 
 # Carrega as variaveis do .env a partir da raiz do p0_primeiro_fluxo_llm
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env", interpolate=False)
 
 
 def ler_configuracao_booleana(nome: str, padrao: bool) -> bool:
