@@ -1,6 +1,7 @@
 """Gerencia o encaminhamento local usado pelo P0."""
 
 import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -88,6 +89,10 @@ def preparar_tunel_devel() -> Iterator[None]:
             raise SystemExit(codigo_saida)
         if codigo_saida == 0:
             raise RuntimeError("O túnel encerrou antes de disponibilizar a porta local 19001.")
+        if os.getenv("MSYSTEM"):
+            caminho_stty = shutil.which("stty")
+            if caminho_stty:
+                subprocess.run([caminho_stty, "sane"], check=False)
         yield
     finally:
         encerrar_tunel(processo)
