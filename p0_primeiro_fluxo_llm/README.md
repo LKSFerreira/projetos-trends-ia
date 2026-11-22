@@ -53,7 +53,7 @@ projetos-trends-ia/
     ├── tests/
     │   └── test_client.py            # Testes unitários do cliente com pytest
     ├── .env.example                  # Configuração de exemplo para o acesso institucional
-    ├── exec_app.py                   # Prepara a configuração e inicia o P0
+    ├── exec_app.py                   # Prepara a configuração e inicia a aplicação
     ├── requirements.txt              # Dependências com versões fixadas
     └── README.md                     # Instruções de instalação, execução e testes
 ```
@@ -82,7 +82,7 @@ Se as dependências estiverem ausentes, o script prepara a pasta `.venv` e insta
 uv run --no-project --with-requirements requirements.txt python exec_app.py
 ```
 
-Nos dois caminhos, o script cria o `.env` se necessário e pede o host institucional se ele ainda não estiver configurado. O P0 verifica a porta local e abre o túnel se precisar. Informe o login do Devel e a frase de segurança da chave se forem solicitados. Digite a pergunta quando o campo de entrada aparecer.
+Nos dois caminhos, o script cria o `.env` se necessário e pede o host institucional se ele ainda não estiver configurado. A aplicação verifica a porta local e abre o túnel se precisar. Informe o login do Devel e a frase de segurança da chave se forem solicitados. Digite a pergunta quando o campo de entrada aparecer.
 
 ### Execução passo a passo
 
@@ -154,7 +154,9 @@ python -m src.app
 
 Se aparecer `No module named 'dotenv'`, confira se você ativou a `.venv` nesse mesmo terminal e instalou as dependências conforme o passo 3. O pacote `python-dotenv` é instalado na `.venv` e importado como `dotenv`.
 
-Antes de pedir a dúvida, o P0 verifica a porta local `19001` para reutilizar o encaminhamento. Se a porta estiver fechada, o P0 tenta abrir o túnel no próprio terminal e encerra essa conexão ao sair.
+Antes de pedir a dúvida, a aplicação verifica a porta local `19001` para reutilizar o encaminhamento. Se a porta estiver fechada, tenta abrir o túnel no próprio terminal e encerra essa conexão ao sair.
+
+Você pode enviar várias perguntas na mesma execução. Cada pergunta é enviada separadamente. Digite `sair` para encerrar a sessão.
 
 ### 7. Executar os testes unitários (100% offline)
 
@@ -166,7 +168,7 @@ python -m pytest
 
 ### 8. Tudo mastigado
 
-Se preferir iniciar o P0 em um único terminal, use o script incluído no repositório. Com a chave SSH preparada e o contêiner em execução no Devel, rode o comando na pasta `p0_primeiro_fluxo_llm`.
+Para executar a aplicação em um único terminal, prepare a chave SSH, inicie o contêiner no Devel e rode o comando na pasta `p0_primeiro_fluxo_llm`.
 
 ```bash
 python exec_app.py
@@ -191,6 +193,12 @@ icacls.exe $chave /inheritance:r
 O `icacls.exe` ajusta as permissões do arquivo. `/grant:r` garante primeiro uma permissão explícita de controle total `(F)` para sua conta. `/inheritance:r` desativa a herança e remove as permissões herdadas. [Referência do icacls](https://learn.microsoft.com/pt-br/windows-server/administration/windows-commands/icacls)
 
 Depois, execute `python exec_app.py` novamente. Se o SSH pedir a frase de segurança, use a mesma da chave que você copiou.
+
+### Campo da pergunta sem entrada visível no Git Bash
+
+No Windows, o campo `>` pode deixar de exibir o que você digita no Git Bash (`MINGW64`) depois que o SSH pede a frase da chave. O sintoma apareceu quando `exec_app.py` abriu o túnel e a aplicação no mesmo terminal. A causa exata ainda não foi confirmada.
+
+Se isso acontecer, encerre a execução atual com `Ctrl+C`. Abra o túnel no primeiro Git Bash conforme o [passo 5](#5-abrir-o-túnel-antes-de-executar-a-aplicação) e mantenha esse terminal aberto. Em um segundo Git Bash, na pasta `p0_primeiro_fluxo_llm`, execute `uv run exec_app.py`. No teste com os terminais separados, foi possível digitar e enviar a pergunta pelo túnel já aberto.
 
 ### Erro HTTP 502 ao consultar o modelo
 

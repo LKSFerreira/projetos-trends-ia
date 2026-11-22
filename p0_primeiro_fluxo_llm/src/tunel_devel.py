@@ -34,6 +34,12 @@ def porta_local_aberta() -> bool:
         return False
 
 
+def verificar_encaminhamento_devel() -> None:
+    """Interrompe a sessão quando a porta do encaminhamento deixa de responder."""
+    if usa_encaminhamento_devel() and not porta_local_aberta():
+        raise RuntimeError("O túnel do Devel caiu. Realize novamente abertura do túnel para reconectar.")
+
+
 def encerrar_tunel(processo: subprocess.Popen) -> None:
     """Encerra o script iniciado pela aplicação e sua conexão SSH."""
     if processo.poll() is not None:
@@ -46,7 +52,7 @@ def encerrar_tunel(processo: subprocess.Popen) -> None:
             check=False,
         )
         if resultado.returncode and processo.poll() is None:
-            print("Não foi possível encerrar o túnel iniciado pelo P0.", file=sys.stderr)
+            print("Não foi possível encerrar o túnel iniciado.", file=sys.stderr)
             return
     else:
         processo.terminate()
