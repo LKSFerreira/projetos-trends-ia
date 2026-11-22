@@ -3,10 +3,11 @@
 import os
 import warnings
 from pathlib import Path
+from urllib.parse import urlsplit
 from dotenv import load_dotenv
 import requests
 from urllib3.exceptions import InsecureRequestWarning
-from src.contexto_prompt import CONTEXTO_LK_SIGER
+from src.contexto_prompt import preparar_solicitacao
 
 # Carrega as variaveis do .env a partir da raiz do p0_primeiro_fluxo_llm
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,6 +26,20 @@ def ler_configuracao_booleana(nome: str, padrao: bool) -> bool:
     raise ValueError(f"A variável {nome} deve conter true ou false.")
 
 
+def ler_timeout_segundos(nome: str = "LLM_TIMEOUT_SECONDS", padrao: int = 30) -> int:
+    """Lê o tempo limite em segundos e garante um inteiro positivo."""
+    valor_bruto = os.getenv(nome, str(padrao)).strip()
+    try:
+        timeout = int(valor_bruto)
+    except ValueError as erro:
+        raise ValueError(f"A variável {nome} deve ser um número inteiro positivo.") from erro
+
+    if timeout <= 0:
+        raise ValueError(f"A variável {nome} deve ser um número inteiro positivo.")
+
+    return timeout
+
+
 def envia_prompt_llm(prompt: str) -> str:
     """Dispara a requisicao HTTP para a LLM com tratamento resiliente de erros.
 
@@ -34,11 +49,10 @@ def envia_prompt_llm(prompt: str) -> str:
     Returns:
         str: Texto da resposta processada ou mensagem de erro amigavel.
     """
-    api_host = os.getenv("HOST_API_LLM_INTERNO","").strip()
+    api_host = os.getenv("HOST_API_LLM_INTERNO", "").strip()
     api_url = os.getenv("LLM_API_URL", "").strip()
     api_key = os.getenv("LLM_API_KEY", "").strip()
     model = os.getenv("LLM_MODEL", "qwen3.5:9b-q4_K_M").strip()
-    timeout = int(os.getenv("LLM_TIMEOUT_SECONDS", "30"))
 
     if not api_host:
         return "Erro de configuracao: A variável HOST_API_LLM_INTERNO não foi definida no .env"
@@ -46,8 +60,19 @@ def envia_prompt_llm(prompt: str) -> str:
     if not api_url:
         return "Erro de configuracao: A variável LLM_API_URL não foi definida no .env"
 
-    verificar_tls = ler_configuracao_booleana("LLM_VERIFICAR_TLS", True)
-    think = ler_configuracao_booleana("LLM_THINK", False)
+    url_analisada = urlsplit(api_url)
+    if url_analisada.scheme not in {"http", "https"} or not url_analisada.netloc:
+        return "Erro de configuração: A variável LLM_API_URL deve ser uma URL HTTP ou HTTPS válida."
+
+    if not model:
+        return "Erro de configuração: A variável LLM_MODEL não pode estar vazia."
+
+    try:
+        timeout = ler_timeout_segundos()
+        verificar_tls = ler_configuracao_booleana("LLM_VERIFICAR_TLS", True)
+        think = ler_configuracao_booleana("LLM_THINK", False)
+    except ValueError as erro:
+        return f"Erro de configuração: {erro}"
 
     headers = {
         "Content-Type": "application/json",
@@ -57,12 +82,7 @@ def envia_prompt_llm(prompt: str) -> str:
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
 
-    payload = {
-        "model": model,
-        "prompt": f"{CONTEXTO_LK_SIGER}\n\nDúvida do usuário: {prompt}",
-        "stream": False,
-        "think": think,
-    }
+    solicitacao = preparar_solicitacao(prompt, model, pensar=think)
 
     try:
         with warnings.catch_warnings():
@@ -70,7 +90,7 @@ def envia_prompt_llm(prompt: str) -> str:
                 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
             response = requests.post(
                 api_url,
-                json=payload,
+                json=solicitacao,
                 headers=headers,
                 timeout=timeout,
                 verify=verificar_tls,
