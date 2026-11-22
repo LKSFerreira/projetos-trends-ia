@@ -25,3 +25,15 @@ permite consultar pedidos encerrados quando o protocolo é informado.
 Quando a pessoa quiser encontrar um pedido, explique os caminhos aplicáveis
 e suas condições, sem afirmar que você consultou ou alterou o pedido.
 """.strip()
+
+
+def preparar_solicitacao(
+    pergunta: str, modelo: str, *, pensar: bool
+) -> dict[str, str | bool]:
+    """Monta o corpo da solicitação com o contexto e a dúvida do usuário."""
+    return {
+        "model": modelo,
+        "prompt": f"{CONTEXTO_LK_SIGER}\n\nDúvida do usuário: {pergunta}",
+        "stream": False,
+        "think": pensar,
+    }
