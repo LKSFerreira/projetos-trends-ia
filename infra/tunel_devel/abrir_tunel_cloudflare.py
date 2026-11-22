@@ -170,6 +170,7 @@ def iniciar_encaminhamento_ssh(endereco_tunel: str, host_llm: str) -> None:
         "-L",
         f"127.0.0.1:19001:{host_llm}:9001",
         "-N",
+        "-n",
         f"tunel_devel@{nome_tunel}",
     ]
 

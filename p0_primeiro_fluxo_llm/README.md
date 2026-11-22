@@ -51,7 +51,9 @@ projetos-trends-ia/
     │   ├── contexto_prompt.py        # Contexto e opções fornecidas ao modelo
     │   └── tunel_devel.py            # Reutiliza o túnel ou chama o script de abertura
     ├── tests/
-    │   └── test_client.py            # Testes unitários do cliente com pytest
+    │   ├── test_app.py               # Testes simulados do laço e do fluxo de túnel
+    │   ├── test_client.py            # Testes simulados de configuração, HTTP e resposta
+    │   └── test_login_devel.py       # Testes simulados do fluxo de login no Devel
     ├── .env.example                  # Configuração de exemplo para o acesso institucional
     ├── exec_app.py                   # Prepara a configuração e inicia a aplicação
     ├── requirements.txt              # Dependências com versões fixadas
@@ -62,7 +64,7 @@ projetos-trends-ia/
 
 ## Quickstart / Como Executar
 
-O nível Básico requer uma conta com acesso ao modelo institucional Devel. Para quem está fora da capacitação, o suporte a um provedor externo com chave de API está planejado para o Intermediário.
+O acesso padrão utiliza o modelo institucional Devel via encaminhamento SSH. Para provedores que exigem autenticação por token, a aplicação também aceita a variável opcional `LLM_API_KEY` no `.env` (enviada como cabeçalho `Authorization: Bearer`).
 
 ### Execução rápida em um terminal
 
@@ -167,13 +169,21 @@ Antes de pedir a dúvida, a aplicação verifica a porta local `19001` para reut
 
 Você pode enviar várias perguntas na mesma execução. Cada pergunta é enviada separadamente. Digite `sair` para encerrar a sessão.
 
-### 7. Executar os testes unitários (100% offline)
+### 7. Executar os testes automatizados (integração simulada)
 
 Na pasta `p0_primeiro_fluxo_llm`, com a `.venv` ativa, execute o pytest como módulo do Python. Assim, a pasta atual fica disponível para os testes importarem `src`.
 
 ```bash
 python -m pytest
 ```
+
+Todos os testes da suíte atual rodam **100% offline** usando simulação (`monkeypatch`), sem acessar o Devel ou a internet:
+
+- `tests/test_app.py`: fluxo principal do terminal, abertura e queda do túnel SSH antes do envio e preservação do código de saída.
+- `tests/test_client.py`: montagem pura da solicitação, validação local de configuração (`LLM_TIMEOUT_SECONDS`, `LLM_VERIFICAR_TLS`, `LLM_THINK`, `LLM_API_URL`, `LLM_MODEL`), códigos HTTP (`401`, `403`, `404`, `429`, `500`, `502`, `503`, `504` e fallback), timeout, falha de conexão, resposta vazia, JSON inválido e formato inesperado.
+- `tests/test_login_devel.py`: tentativas de login interativo e recusa controlada com credenciais configuradas.
+
+Os testes reais contra o modelo institucional no Devel são executados manualmente via `python -m src.app` ou `python exec_app.py`, com resultados registrados na seção [Testes reais realizados](#testes-reais-realizados).
 
 ### 8. Tudo mastigado
 

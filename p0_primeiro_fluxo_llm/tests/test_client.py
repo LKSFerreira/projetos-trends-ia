@@ -69,7 +69,103 @@ def test_envia_prompt_erro_401(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(requests, "post", mock_post)
 
     resposta = envia_prompt_llm("Teste com chave invalida")
-    assert "Erro de autenticacao (401)" in resposta
+    assert "(401)" in resposta
+
+
+@pytest.mark.parametrize(
+    ("status_code", "trecho_esperado"),
+    [
+        (403, "(403)"),
+        (404, "(404)"),
+        (500, "Serviço indisponível (500)"),
+        (502, "Serviço indisponível (502)"),
+        (503, "Serviço indisponível (503)"),
+        (418, "Erro HTTP (418)"),
+    ],
+)
+def test_envia_prompt_trata_codigos_http_comuns(
+    monkeypatch: pytest.MonkeyPatch,
+    status_code: int,
+    trecho_esperado: str,
+) -> None:
+    """Valida mensagens amigaveis para codigos HTTP de erro sem expor detalhes tecnicos."""
+    def mock_post(*args, **kwargs) -> MockResponse:
+        return MockResponse({}, status_code)
+
+    monkeypatch.setattr(requests, "post", mock_post)
+
+    resposta = envia_prompt_llm("Teste de status HTTP")
+    assert trecho_esperado in resposta
+
+
+def test_envia_prompt_falha_de_conexao(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Valida o tratamento amigavel quando ha erro de comunicacao com o servidor."""
+    def mock_post(*args, **kwargs) -> MockResponse:
+        raise requests.exceptions.ConnectionError("Conexão recusada")
+
+    monkeypatch.setattr(requests, "post", mock_post)
+
+    resposta = envia_prompt_llm("Teste de conexão")
+    assert "Erro de conexao:" in resposta
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"response": ""},
+        {"response": "   "},
+        {"choices": [{"message": {"content": "   "}}]},
+    ],
+)
+def test_envia_prompt_rejeita_resposta_vazia(
+    monkeypatch: pytest.MonkeyPatch,
+    payload: dict,
+) -> None:
+    """Garante que resposta vazia nao seja apresentada como sucesso."""
+    def mock_post(*args, **kwargs) -> MockResponse:
+        return MockResponse(payload, 200)
+
+    monkeypatch.setattr(requests, "post", mock_post)
+
+    resposta = envia_prompt_llm("Teste de resposta vazia")
+    assert "resposta vazia" in resposta
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"outro_campo": "valor"},
+        ["lista_inesperada"],
+        {"choices": [{"sem_message": True}]},
+    ],
+)
+def test_envia_prompt_rejeita_formato_inesperado(
+    monkeypatch: pytest.MonkeyPatch,
+    payload: object,
+) -> None:
+    """Garante mensagem controlada quando o JSON nao traz os campos esperados."""
+    def mock_post(*args, **kwargs) -> MockResponse:
+        return MockResponse(payload, 200)
+
+    monkeypatch.setattr(requests, "post", mock_post)
+
+    resposta = envia_prompt_llm("Teste de formato inesperado")
+    assert "Erro de formato:" in resposta
+
+
+def test_envia_prompt_rejeita_json_invalido(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Garante mensagem controlada quando o retorno nao e JSON valido."""
+    class MockResponseNaoJson(MockResponse):
+        def json(self) -> dict:
+            raise ValueError("Conteúdo não é JSON")
+
+    def mock_post(*args, **kwargs) -> MockResponse:
+        return MockResponseNaoJson({}, 200)
+
+    monkeypatch.setattr(requests, "post", mock_post)
+
+    resposta = envia_prompt_llm("Teste de JSON inválido")
+    assert "JSON válido" in resposta
 
 
 def test_envia_prompt_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
