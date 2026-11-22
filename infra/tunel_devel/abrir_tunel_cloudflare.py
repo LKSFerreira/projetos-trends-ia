@@ -11,6 +11,7 @@ import subprocess
 import sys
 from getpass import getpass
 from html.parser import HTMLParser
+from http import HTTPStatus
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -105,14 +106,23 @@ def autenticar_no_portal(sessao: requests.Session) -> str:
             headers={"Referer": ENDERECO_LOGIN},
             timeout=TEMPO_LIMITE,
         )
-        resposta.raise_for_status()
-        if "/logout/" in resposta.text:
-            print("\nLogin confirmado pelo painel do portal.")
-            return resposta.text
-        if email_configurado and senha_configurada:
-            raise RuntimeError("Login recusado. Revise DEVEL_EMAIL e DEVEL_SENHA no .env.")
+        recusa_http = resposta.status_code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN)
+        if not recusa_http:
+            resposta.raise_for_status()
+            if "/logout/" in resposta.text:
+                print("\nLogin confirmado pelo painel do portal.")
+                return resposta.text
 
-        print("\nLogin não confirmado. Digite os dados novamente ou pressione Ctrl+C.\n")
+        codigo_recusa = f" (HTTP {resposta.status_code})" if recusa_http else ""
+        if email_configurado and senha_configurada:
+            raise RuntimeError(
+                f"Login recusado{codigo_recusa}. Revise DEVEL_EMAIL e DEVEL_SENHA no .env."
+            )
+
+        print(
+            f"\nLogin não confirmado{codigo_recusa}. "
+            "Digite os dados novamente ou pressione Ctrl+C.\n"
+        )
 
 
 def descobrir_endereco_tunel(sessao: requests.Session, painel: str) -> str:

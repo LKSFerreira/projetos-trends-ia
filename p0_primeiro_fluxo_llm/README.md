@@ -137,7 +137,7 @@ DEVEL_EMAIL=
 DEVEL_SENHA=
 ```
 
-O script pede no terminal os campos que estiverem vazios. Se o portal devolver a página de login, você pode preencher esses campos de novo ou pressionar `Ctrl+C`. Se os dois campos já estiverem configurados, o script orienta a revisar o `.env`. Quando o portal responder com um código de erro HTTP, o script exibe esse código e encerra. O SSH continua pedindo a frase de segurança da chave quando necessário.
+O script pede no terminal os campos que estiverem vazios. Se o envio do login devolver a página de entrada ou retornar HTTP 401 ou 403, o script recarrega o formulário e oferece uma nova tentativa para os campos digitados. Use `Ctrl+C` para encerrar. Se os dois campos já estiverem configurados, o script encerra com uma orientação para revisar o `.env`. Os demais erros HTTP exibem o código e encerram o script. O SSH continua pedindo a frase de segurança da chave quando necessário.
 
 ### 5. Abrir o túnel antes de executar a aplicação
 
